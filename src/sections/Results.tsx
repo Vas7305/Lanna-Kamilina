@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/components/AppLink';
 import { routes, worksLink } from '@/lib/routes';
 import { track } from '@/lib/analytics';
 import { getBeforeAfterItems, getFeaturedPortfolio, getService, getSpecialist } from '@/data';
@@ -89,7 +89,7 @@ export function BeforeAfterSection() {
           <Reveal className="lg:col-span-7">
             <BeforeAfter
               pair={lead.beforeAfter}
-              ratio="landscape"
+              ratio={lead.orientation}
               label={lead.title}
               trackingId={lead.slug}
             />
@@ -128,7 +128,7 @@ export function BeforeAfterSection() {
                 <Reveal key={item.id} delay={index * 80}>
                   <BeforeAfter
                     pair={item.beforeAfter}
-                    ratio="wide"
+                    ratio={item.orientation}
                     label={item.title}
                     trackingId={item.slug}
                   />

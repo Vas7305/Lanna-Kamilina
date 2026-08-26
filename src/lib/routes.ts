@@ -88,3 +88,41 @@ export const SITE_ORIGIN = 'https://lannakamilina.ru';
 export function absoluteUrl(path: string): string {
   return `${SITE_ORIGIN}${path.startsWith('/') ? path : `/${path}`}`;
 }
+
+/**
+ * The site read as one horizontal strip: home first, then the primary nav in
+ * the order it is printed, then the two destinations that sit past the end of
+ * it. Discovery and booking are the end of the funnel — everything links
+ * *into* them and they link back out — so they are always further right than
+ * whatever sent the visitor there.
+ *
+ * Route transitions animate towards the side the destination sits on, so the
+ * direction a page arrives from always matches where its link sits in the bar.
+ * Reordering `primaryNav` reorders the motion with it, which is why this is
+ * derived here rather than written out again somewhere else.
+ */
+const routeOrder: string[] = [
+  routes.home,
+  ...primaryNav.map((item) => item.to),
+  routes.discovery,
+  routes.booking,
+];
+
+/**
+ * Position of a path on that strip. Unknown paths — privacy, 404 — sit at
+ * home's end, which is where a footer link to the small print belongs.
+ */
+export function navPosition(pathname: string): number {
+  let position = 0;
+
+  routeOrder.forEach((href, index) => {
+    if (href === routes.home) return;
+    // A detail page belongs with the section it came from, so /raboty/<slug>
+    // is not "further right" than /raboty — going back to the index is a step
+    // left, and going deeper is not a sideways move at all. It is also what
+    // puts /zapis/gotovo with /zapis rather than out past it.
+    if (pathname === href || pathname.startsWith(`${href}/`)) position = index;
+  });
+
+  return position;
+}

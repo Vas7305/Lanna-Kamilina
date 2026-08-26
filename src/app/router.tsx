@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import { routes } from '@/lib/routes';
 import { Layout, ScrollManager } from './Layout';
+import { RouteTransitionRunner } from './routeTransition';
+import { SmoothScroll } from '@/components/SmoothScroll';
 import { HomePage } from '@/pages/HomePage';
 
 /**
@@ -60,7 +62,17 @@ function RouteFallback() {
 export function AppRoutes() {
   return (
     <>
+      {/* Mounted above the routes so the page's momentum survives navigation
+          instead of being rebuilt per page. Renders nothing. */}
+      <SmoothScroll />
+
+      {/* Order matters. ScrollManager returns the page to the top, and only
+          then may RouteTransitionRunner tell the running view transition to
+          take its snapshot of the new page — reversed, the incoming page is
+          captured still showing the outgoing page's scroll offset. */}
       <ScrollManager />
+      <RouteTransitionRunner />
+
       <Routes>
         <Route element={<Layout />}>
           <Route path={routes.home} element={<HomePage />} />

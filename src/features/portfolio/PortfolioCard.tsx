@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/components/AppLink';
 import type { PortfolioItem } from '@/types';
 import { cn } from '@/lib/utils';
 import { bookingLink, routes } from '@/lib/routes';

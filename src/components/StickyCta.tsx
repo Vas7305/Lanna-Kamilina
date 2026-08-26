@@ -36,6 +36,9 @@ export function StickyCta() {
   return (
     <div
       className={[
+        // Pinned during route transitions alongside the header — see
+        // styles/transitions.css.
+        'sticky-cta-anchor',
         'fixed inset-x-0 bottom-0 z-70 border-t border-line bg-paper/95 backdrop-blur-md lg:hidden',
         'transition-transform duration-300 ease-[var(--ease-editorial)]',
         'pb-[env(safe-area-inset-bottom)]',

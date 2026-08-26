@@ -3,11 +3,12 @@ import type { ImageRef } from '@/types';
 /**
  * Real photography.
  *
- * The shoot lives in `public/Lanna Kamilina/Clientes/` under numeric filenames,
- * which say nothing about what is in the frame. This module is the one place
- * that translates a file into a described image: every consumer imports a named
- * `ImageRef` and never a path, so re-shooting a look means editing one line
- * here instead of hunting through sections and catalogue data.
+ * The shoot lives in `public/Lanna Kamilina/` — `Clientes/` for finished looks,
+ * `Before-after/` for matched pairs — under numeric filenames, which say nothing
+ * about what is in the frame. This module is the one place that translates a
+ * file into a described image: every consumer imports a named `ImageRef` and
+ * never a path, so re-shooting a look means editing one line here instead of
+ * hunting through sections and catalogue data.
  *
  * Intrinsic dimensions are recorded so the browser can reserve the box before
  * the bytes arrive — `Figure` still fixes the aspect ratio, but width/height
@@ -15,9 +16,14 @@ import type { ImageRef } from '@/types';
  */
 
 const DIR = '/Lanna%20Kamilina/Clientes';
+const PAIRS_DIR = '/Lanna%20Kamilina/Before-after';
 
 function photo(file: string, alt: string, width: number, height: number): ImageRef {
   return { src: `${DIR}/${file}`, alt, width, height };
+}
+
+function pairPhoto(file: string, alt: string, width: number, height: number): ImageRef {
+  return { src: `${PAIRS_DIR}/${file}`, alt, width, height };
 }
 
 /** Front-facing, warm, a full look — the strongest single frame we have. */
@@ -69,4 +75,53 @@ export const eveningLook = photo(
   'Вечерний образ: локоны, красная помада и чёрное платье',
   361,
   543,
+);
+
+/* ------------------------------------------------------------ before/after */
+
+/**
+ * A real matched pair: same person, same sweater, same light, same distance.
+ * Only the work changed, which is exactly what makes the slider worth pulling.
+ */
+
+export const dayMakeupBefore = pairPhoto(
+  '1.png',
+  'До: лицо без макияжа и неуложенные волосы',
+  1122,
+  1402,
+);
+
+export const dayMakeupAfter = pairPhoto(
+  '2.jpg',
+  'После: дневной макияж — ровный тон, акцент на глаза и губы — и мягкая укладка',
+  800,
+  1000,
+);
+
+export const curlsBefore = pairPhoto(
+  '3.png',
+  'До: пушистые волосы без формы и лицо без макияжа',
+  1082,
+  1353,
+);
+
+export const curlsAfter = pairPhoto(
+  '4.png',
+  'После: крупные мягкие локоны с прикорневым объёмом и вечерний макияж',
+  434,
+  542,
+);
+
+export const eveningBefore = pairPhoto(
+  '5.png',
+  'До: лицо без макияжа и волосы, уложенные мягкой волной',
+  1083,
+  1453,
+);
+
+export const eveningAfter = pairPhoto(
+  '6.jpeg',
+  'После: вечерний макияж с красной помадой и акцентом на глаза, локоны уложены набок',
+  805,
+  1080,
 );

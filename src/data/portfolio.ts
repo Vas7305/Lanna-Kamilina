@@ -2,7 +2,13 @@ import type { PortfolioItem } from '@/types';
 import {
   balayageLength,
   bridalWaves,
+  curlsAfter,
+  curlsBefore,
   dayMakeup,
+  dayMakeupAfter,
+  dayMakeupBefore,
+  eveningAfter,
+  eveningBefore,
   eveningLook,
   mensCut,
 } from './photos';
@@ -17,8 +23,9 @@ import {
  *
  * Items backed by a real frame from `./photos` carry `featured`, so the
  * homepage rail opens on photography and the remaining placeholders trail
- * behind it. Before/after pairs stay seeded: we have finished results, not
- * matching "до" frames, and inventing one would be a lie told in a slider.
+ * behind it. The same rule holds for the sliders: pairs shot on a real client —
+ * same seat, same light, one visit apart — lead, and the rest stay seeded.
+ * Inventing a "до" frame would be a lie told in a slider.
  */
 
 const mock = { source: 'mock' } as const;
@@ -80,11 +87,15 @@ export const portfolio: PortfolioItem[] = [
     id: 'pf-evening-look',
     slug: 'vecherniy-obraz-uzhin',
     title: 'Вечерний образ',
-    summary: 'Макияж + собранная укладка',
+    summary: 'Макияж + укладка',
     serviceIds: ['svc-evening-look', 'svc-makeup-evening'],
     specialistId: 'sp-olga',
     tags: ['makiyazh', 'sobytie', 'obraz', 'ukladka'],
     image: eveningLook,
+    beforeAfter: {
+      before: eveningBefore,
+      after: eveningAfter,
+    },
     reviewId: 'rv-evening-1',
     orientation: 'portrait',
     featured: true,
@@ -125,6 +136,10 @@ export const portfolio: PortfolioItem[] = [
     specialistId: 'sp-anna',
     tags: ['ukladka', 'volosy', 'sobytie'],
     image: { alt: 'Укладка мягкими локонами', seed: 'pf-locks' },
+    beforeAfter: {
+      before: curlsBefore,
+      after: curlsAfter,
+    },
     orientation: 'portrait',
   },
   {
@@ -153,6 +168,10 @@ export const portfolio: PortfolioItem[] = [
     specialistId: 'sp-olga',
     tags: ['makiyazh'],
     image: dayMakeup,
+    beforeAfter: {
+      before: dayMakeupBefore,
+      after: dayMakeupAfter,
+    },
     orientation: 'square',
     featured: true,
   },

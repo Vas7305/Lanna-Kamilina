@@ -40,9 +40,13 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(options?: {
           observer.disconnect();
         }
       },
+      // Fire slightly before the block reaches the fold so the reveal has
+      // finished by the time it is properly in view. The page scrolls under
+      // inertia, so a block keeps travelling after the wheel stops — starting
+      // late leaves it animating in the middle of the screen.
       {
-        threshold: options?.threshold ?? 0.12,
-        rootMargin: options?.rootMargin ?? '0px 0px -8% 0px',
+        threshold: options?.threshold ?? 0.05,
+        rootMargin: options?.rootMargin ?? '0px 0px -12% 0px',
       },
     );
 

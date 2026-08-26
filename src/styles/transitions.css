@@ -1,0 +1,178 @@
+/* ===========================================================================
+   LANNA KAMILINA — ROUTE TRANSITIONS
+   The horizontal slide between pages.
+
+   These rules target the root snapshot and are scoped by an attribute that
+   AppLink sets on <html> for the length of the navigation. That attribute is
+   the whole mechanism: the browser gives a view transition no notion of
+   travelling "forward" or "back", so the direction has to be stated in the DOM
+   before the transition starts and read back out here.
+
+   The movement is meant to read as the same substance as the scroll: a page
+   that is thrown rather than dragged, arriving fast and settling slowly. That
+   is why the slide runs on --ease-enter — cubic-bezier(0.16, 1, 0.3, 1), an
+   exponential ease-out, which is the curve shape SmoothScroll integrates
+   numerically. Same deceleration, one expressed as physics and one as a
+   keyframe.
+
+   The fade is deliberately not on that curve. Opacity crossing at the same
+   rate as the movement leaves both pages half-visible through the middle of
+   the travel, which reads as a dissolve rather than as one page replacing
+   another. So the old page leaves quickly and the new one waits for it.
+
+   This file is plain CSS on purpose. `view-transition-name` is scoped exactly
+   as an animation name is, so a value written inside a scoping mechanism ships
+   rewritten while the `::view-transition-*` rules below cannot be rewritten to
+   match — and silently stop applying. The elements that want to be pinned take
+   the global classes at the bottom.
+   =========================================================================== */
+
+:root {
+  /* Far enough to state a direction, short enough that the eye is not asked
+     to track a page across the viewport. */
+  --route-slide: 64px;
+  --route-move: 700ms;
+  --route-out: 200ms;
+  --route-in: 400ms;
+}
+
+/* Both snapshots occupy the same space, so they must not stack in flow. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* --- Forward: the old page continues left, the new arrives from the right -- */
+:root[data-nav-direction='forward']::view-transition-old(root) {
+  animation:
+    var(--route-out) var(--ease-editorial) both route-fade-out,
+    var(--route-move) var(--ease-enter) both route-exit-left;
+}
+
+:root[data-nav-direction='forward']::view-transition-new(root) {
+  animation:
+    var(--route-in) var(--ease-editorial) var(--route-out) both route-fade-in,
+    var(--route-move) var(--ease-enter) both route-enter-right;
+}
+
+/* --- Back: both halves reverse ------------------------------------------- */
+:root[data-nav-direction='back']::view-transition-old(root) {
+  animation:
+    var(--route-out) var(--ease-editorial) both route-fade-out,
+    var(--route-move) var(--ease-enter) both route-exit-right;
+}
+
+:root[data-nav-direction='back']::view-transition-new(root) {
+  animation:
+    var(--route-in) var(--ease-editorial) var(--route-out) both route-fade-in,
+    var(--route-move) var(--ease-enter) both route-enter-left;
+}
+
+@keyframes route-exit-left {
+  to {
+    translate: calc(var(--route-slide) * -1);
+  }
+}
+
+@keyframes route-exit-right {
+  to {
+    translate: var(--route-slide);
+  }
+}
+
+@keyframes route-enter-right {
+  from {
+    translate: var(--route-slide);
+  }
+}
+
+@keyframes route-enter-left {
+  from {
+    translate: calc(var(--route-slide) * -1);
+  }
+}
+
+@keyframes route-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes route-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   THE FIXED CHROME DOES NOT MOVE
+   The header is the one fixed reference during the slide. Without an anchor
+   the whole viewport appears to travel and the page stops reading as content
+   moving underneath a bar. The mobile booking bar is pinned for the same
+   reason — a bar sliding sideways while the header above it holds still reads
+   as the page coming apart.
+
+   `view-transition-name` must be unique in the document. Both elements render
+   in the persistent layout rather than per page, so a navigation never holds
+   two of either; a duplicate name makes the browser discard the whole
+   transition instead of animating it.
+   ------------------------------------------------------------------------ */
+.site-header-anchor {
+  view-transition-name: site-header;
+}
+
+.sticky-cta-anchor {
+  view-transition-name: sticky-cta;
+}
+
+::view-transition-group(site-header),
+::view-transition-group(sticky-cta) {
+  animation: none;
+}
+
+::view-transition-group(site-header) {
+  z-index: 100;
+}
+
+::view-transition-group(sticky-cta) {
+  z-index: 70;
+}
+
+/* The old chrome is simply dropped: it is the same bar either side of the
+   navigation, so cross-fading it against itself only makes it flicker. The
+   booking bar can genuinely differ between routes (it reads the page's CTA
+   context, and some pages suppress it) — dropping the old one there means it
+   changes over instantly instead of dissolving, which is the same treatment
+   the header gets and reads as chrome updating rather than moving. */
+::view-transition-old(site-header),
+::view-transition-old(sticky-cta) {
+  display: none;
+}
+
+::view-transition-new(site-header),
+::view-transition-new(sticky-cta) {
+  animation: none;
+}
+
+/* The overlay swallows pointer events while it runs, so a click during the
+   slide would be lost. Let them through to the live page. */
+::view-transition {
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+   REDUCED MOTION
+   A page sliding across the viewport is the most common trigger for motion
+   sensitivity — it simulates the viewer moving, not an element changing.
+   AppLink also declines to start a transition at all under this preference;
+   these rules cover any that begins another way.
+   ------------------------------------------------------------------------ */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
+}

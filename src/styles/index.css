@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@import './transitions.css';
 
 /* =========================================================================
    LANNA KAMILINA — DESIGN TOKENS
@@ -55,7 +56,16 @@
 
   html {
     -webkit-text-size-adjust: 100%;
-    scroll-behavior: smooth;
+    /* No `scroll-behavior: smooth`. SmoothScroll drives the scroll position
+       itself, and a native easing underneath its easing compounds into a
+       scroll that overshoots and then crawls. Anything that still wants a
+       smooth jump asks for it per call — `ScrollManager` does, for anchors. */
+    /* Hold the scrollbar's width whether or not the route needs one. Short
+       pages (contacts) do not scroll and tall ones (works) do, so without this
+       every navigation between them shifts the layout sideways — which the
+       route slide would then carry, turning a clean horizontal move into a
+       jolt. */
+    scrollbar-gutter: stable;
     --header-h: 4.5rem;
   }
 
@@ -240,12 +250,15 @@
    Entrances are short, one-directional and never blocking.
    ========================================================================= */
 
+/* The entrance is slower than a UI transition on purpose: it has to read as
+   the same unhurried substance as the scroll that reveals it. At 0.7s the
+   block had landed before the eye arrived at it. */
 @utility reveal {
   opacity: 0;
   transform: translateY(14px);
   transition:
-    opacity 0.7s var(--ease-enter),
-    transform 0.7s var(--ease-enter);
+    opacity 0.9s var(--ease-enter),
+    transform 0.9s var(--ease-enter);
 }
 
 @utility reveal-in {

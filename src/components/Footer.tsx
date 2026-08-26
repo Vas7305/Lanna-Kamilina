@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/components/AppLink';
 import { bookingLink, routes } from '@/lib/routes';
 import { business, IS_DEMO_CONTENT, serviceCategories, yearsInBusiness } from '@/data';
 import { formatYears } from '@/lib/format';

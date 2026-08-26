@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
+import { NavLink } from '@/components/AppLink';
 import { cn } from '@/lib/utils';
 import { bookingLink, primaryNav, routes } from '@/lib/routes';
 import { track } from '@/lib/analytics';
@@ -42,6 +43,11 @@ export function Header({ overHero = false }: { overHero?: boolean }) {
 
       <header
         className={cn(
+          // `site-header-anchor` holds the header still while a route slides
+          // underneath it — see styles/transitions.css. It must stay a global
+          // class: `view-transition-name` cannot be scoped or the matching
+          // pseudo-element rules stop applying.
+          'site-header-anchor',
           'fixed inset-x-0 top-0 z-90 transition-[background-color,border-color,box-shadow] duration-300',
           solid
             ? 'border-b border-line bg-paper/92 backdrop-blur-md'

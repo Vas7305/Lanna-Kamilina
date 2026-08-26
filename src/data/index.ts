@@ -173,7 +173,11 @@ export function getPortfolioByTags(tags: string[], limit = 6): PortfolioItem[] {
 }
 
 export function getBeforeAfterItems(limit = 6): PortfolioItem[] {
-  return portfolio.filter((item) => item.beforeAfter).slice(0, limit);
+  // Pairs shot on real clients lead; seeded placeholders trail behind them.
+  const items = portfolio.filter((item) => item.beforeAfter);
+  const real = items.filter((item) => item.beforeAfter?.before.src && item.beforeAfter.after.src);
+  const seeded = items.filter((item) => !real.includes(item));
+  return [...real, ...seeded].slice(0, limit);
 }
 
 /* ----------------------------------------------------------------- reviews */

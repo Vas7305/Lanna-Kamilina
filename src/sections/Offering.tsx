@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link } from '@/components/AppLink';
 import { routes } from '@/lib/routes';
 import { track } from '@/lib/analytics';
 import { formatPrice } from '@/lib/format';
