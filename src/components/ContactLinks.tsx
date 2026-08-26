@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 import { business, placeholders } from '@/data';
-import { formatPhone, phoneHref } from '@/lib/format';
+import { formatPhone, phoneHref, telegramHref, whatsappHref } from '@/lib/format';
 import { track } from '@/lib/analytics';
 import type { AnalyticsEvent } from '@/lib/analytics';
 import { PlaceholderToken } from './Meta';
@@ -92,7 +92,7 @@ export function ContactChannels({
         label="Telegram"
         value={business.telegram}
         placeholder={placeholders.telegram}
-        href={business.telegram ?? undefined}
+        href={business.telegram ? telegramHref(business.telegram) : undefined}
         event="telegram_clicked"
         surface={surface}
         external
@@ -101,7 +101,8 @@ export function ContactChannels({
         label="WhatsApp"
         value={business.whatsapp}
         placeholder={placeholders.whatsapp}
-        href={business.whatsapp ?? undefined}
+        href={business.whatsapp ? whatsappHref(business.whatsapp) : undefined}
+        display={business.whatsapp ? formatPhone(business.whatsapp) : undefined}
         event="whatsapp_clicked"
         surface={surface}
         external

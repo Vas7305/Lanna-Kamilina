@@ -26,10 +26,10 @@ export const business: BusinessInformation = {
 
   address: null,
   metro: null,
-  phone: null,
+  phone: '+7 (499) 250-07-00',
   email: null,
-  telegram: null,
-  whatsapp: null,
+  telegram: '@LannaKamilinabeautyservice',
+  whatsapp: '+7 915 000-78-11',
 
   yandexMapsUrl: null,
   twoGisUrl: null,

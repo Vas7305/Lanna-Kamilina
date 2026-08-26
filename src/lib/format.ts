@@ -138,3 +138,15 @@ export function phoneHref(raw: string): string {
   const digits = raw.replace(/\D/g, '').replace(/^8/, '7');
   return `tel:+${digits}`;
 }
+
+/** `@handle` → `https://t.me/handle`; passes through a full link unchanged. */
+export function telegramHref(raw: string): string {
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://t.me/${raw.replace(/^@/, '')}`;
+}
+
+/** `+7 915 000-78-11` → `https://wa.me/79150007811`. */
+export function whatsappHref(raw: string): string {
+  if (/^https?:\/\//i.test(raw)) return raw;
+  return `https://wa.me/${raw.replace(/\D/g, '').replace(/^8/, '7')}`;
+}
