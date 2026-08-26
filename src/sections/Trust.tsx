@@ -45,7 +45,7 @@ export function LocationSection() {
     <section className="section-y-tight" aria-labelledby="location-heading">
       <div className="shell">
         <div className="grid gap-10 border border-line lg:grid-cols-2">
-          <div className="flex flex-col justify-between gap-10 p-8 lg:p-12">
+          <div className="flex min-w-0 flex-col justify-between gap-10 p-8 lg:p-12">
             <div>
               <SectionHeader
                 eyebrow="Как добраться"
@@ -66,11 +66,11 @@ export function LocationSection() {
             </div>
           </div>
 
-          <div className="relative min-h-[18rem] border-t border-line lg:border-t-0 lg:border-l">
+          <div className="relative min-h-[18rem] min-w-0 border-t border-line lg:border-t-0 lg:border-l">
             <Figure
               image={{ alt: 'Салон Lanna Kamilina в центре Москвы', seed: 'location-map' }}
               ratio="landscape"
-              className="h-full"
+              className="h-full w-full"
             />
           </div>
         </div>

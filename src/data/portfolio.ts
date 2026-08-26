@@ -1,4 +1,11 @@
 import type { PortfolioItem } from '@/types';
+import {
+  balayageLength,
+  bridalWaves,
+  dayMakeup,
+  eveningLook,
+  mensCut,
+} from './photos';
 
 /**
  * Portfolio — DEMO CONTENT.
@@ -7,6 +14,11 @@ import type { PortfolioItem } from '@/types';
  * specialist who did it, the service it maps to, and (where a genuine pair
  * exists) a before/after. That is what lets a card end in "Хочу так же"
  * instead of a dead end.
+ *
+ * Items backed by a real frame from `./photos` carry `featured`, so the
+ * homepage rail opens on photography and the remaining placeholders trail
+ * behind it. Before/after pairs stay seeded: we have finished results, not
+ * matching "до" frames, and inventing one would be a lie told in a slider.
  */
 
 const mock = { source: 'mock' } as const;
@@ -28,7 +40,6 @@ export const portfolio: PortfolioItem[] = [
     },
     reviewId: 'rv-blonde-1',
     orientation: 'portrait',
-    featured: true,
   },
   {
     ...mock,
@@ -46,7 +57,6 @@ export const portfolio: PortfolioItem[] = [
     },
     reviewId: 'rv-colour-1',
     orientation: 'landscape',
-    featured: true,
   },
   {
     ...mock,
@@ -64,7 +74,6 @@ export const portfolio: PortfolioItem[] = [
     },
     reviewId: 'rv-cut-1',
     orientation: 'portrait',
-    featured: true,
   },
   {
     ...mock,
@@ -75,7 +84,7 @@ export const portfolio: PortfolioItem[] = [
     serviceIds: ['svc-evening-look', 'svc-makeup-evening'],
     specialistId: 'sp-olga',
     tags: ['makiyazh', 'sobytie', 'obraz', 'ukladka'],
-    image: { alt: 'Вечерний образ: макияж и собранная укладка', seed: 'pf-evening' },
+    image: eveningLook,
     reviewId: 'rv-evening-1',
     orientation: 'portrait',
     featured: true,
@@ -89,7 +98,7 @@ export const portfolio: PortfolioItem[] = [
     serviceIds: ['svc-wedding-look', 'svc-makeup-wedding'],
     specialistId: 'sp-olga',
     tags: ['svadba', 'sobytie', 'makiyazh', 'obraz'],
-    image: { alt: 'Свадебный образ невесты', seed: 'pf-wedding-1' },
+    image: bridalWaves,
     reviewId: 'rv-wedding-1',
     orientation: 'portrait',
     featured: true,
@@ -143,8 +152,9 @@ export const portfolio: PortfolioItem[] = [
     serviceIds: ['svc-makeup-day'],
     specialistId: 'sp-olga',
     tags: ['makiyazh'],
-    image: { alt: 'Дневной макияж', seed: 'pf-day-makeup' },
+    image: dayMakeup,
     orientation: 'square',
+    featured: true,
   },
   {
     ...mock,
@@ -158,7 +168,6 @@ export const portfolio: PortfolioItem[] = [
     image: { alt: 'Образ для фотосессии', seed: 'pf-photo' },
     reviewId: 'rv-photo-1',
     orientation: 'landscape',
-    featured: true,
   },
   {
     ...mock,
@@ -169,8 +178,9 @@ export const portfolio: PortfolioItem[] = [
     serviceIds: ['svc-colour-complex'],
     specialistId: 'sp-marina',
     tags: ['okrashivanie', 'volosy'],
-    image: { alt: 'Тёплый балаяж на длинных волосах', seed: 'pf-balayazh' },
+    image: balayageLength,
     orientation: 'portrait',
+    featured: true,
   },
   {
     ...mock,
@@ -266,8 +276,9 @@ export const portfolio: PortfolioItem[] = [
     serviceIds: ['svc-mens-cut'],
     specialistId: 'sp-kirill',
     tags: ['strizhka'],
-    image: { alt: 'Мужская классическая стрижка', seed: 'pf-mens' },
+    image: mensCut,
     orientation: 'square',
+    featured: true,
   },
 ];
 

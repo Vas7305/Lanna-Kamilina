@@ -2,6 +2,7 @@ import { bookingLink, routes } from '@/lib/routes';
 import { track } from '@/lib/analytics';
 import { formatRating, formatYears } from '@/lib/format';
 import { getAverageRating, getTotalReviewCount, yearsInBusiness } from '@/data';
+import { heroDetail, heroPortrait } from '@/data/photos';
 import { ButtonLink } from '@/components/Button';
 import { Figure } from '@/components/Figure';
 import { Stars } from '@/components/Meta';
@@ -93,14 +94,14 @@ export function Hero() {
           <div className="relative lg:col-span-6 lg:col-start-7 xl:col-span-7 xl:col-start-6">
             <div className="relative ml-auto w-full max-w-xl">
               <Figure
-                image={{ alt: 'Работа мастеров салона Lanna Kamilina', seed: 'hero-main' }}
+                image={heroPortrait}
                 ratio="portrait"
                 priority
                 className="grain"
               />
               <div className="absolute -bottom-8 -left-4 w-[42%] max-w-[13rem] sm:-left-8 lg:-left-12">
                 <Figure
-                  image={{ alt: 'Деталь укладки', seed: 'hero-detail' }}
+                  image={heroDetail}
                   ratio="square"
                   priority
                   className="border-8 border-paper"

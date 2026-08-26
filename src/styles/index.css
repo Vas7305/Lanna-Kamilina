@@ -292,6 +292,13 @@
   display: flex;
   gap: 1rem;
   overflow-x: auto;
+  /* `overflow-x` clips the paint but still reports the scroll extent up to the
+     document, which makes the page itself measure ~2300px wide on a phone.
+     Mobile browsers answer that by widening the layout viewport, so the fixed
+     header and sticky bar stretch past the screen and their right-hand
+     contents land out of view. Paint containment keeps the rail's width its
+     own business. */
+  contain: paint;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
