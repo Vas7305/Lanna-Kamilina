@@ -1,0 +1,32 @@
+{
+  "name": "lanna-kamilina",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Lanna Kamilina — premium beauty digital experience, Moscow",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run validate && npm run smoke && tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "validate": "esbuild ./scripts/validate-content.ts --bundle --platform=node --format=esm --outfile=node_modules/.tmp/validate.mjs --alias:@=./src --log-level=warning && node node_modules/.tmp/validate.mjs",
+    "smoke": "esbuild ./scripts/render-smoke.tsx --bundle --platform=node --format=esm --outfile=node_modules/.tmp/smoke.mjs --alias:@=./src --jsx=automatic --external:react --external:react-dom --external:react-router --external:react-router-dom --define:import.meta.env.DEV=false --log-level=warning && node node_modules/.tmp/smoke.mjs",
+    "check": "npm run typecheck && npm run validate && npm run smoke"
+  },
+  "dependencies": {
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router-dom": "^7.6.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.1.7",
+    "@types/node": "^22.20.1",
+    "@types/react": "^19.1.4",
+    "@types/react-dom": "^19.1.5",
+    "@vitejs/plugin-react": "^4.4.1",
+    "esbuild": "^0.25.0",
+    "tailwindcss": "^4.1.7",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}
