@@ -88,7 +88,7 @@ export function Header({ overHero = false }: { overHero?: boolean }) {
               className="hidden sm:inline-flex"
               onClick={() => track('booking_started', { from: 'header' })}
             >
-              Записаться
+              Забронировать
             </ButtonLink>
 
             <button

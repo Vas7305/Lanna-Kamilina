@@ -82,20 +82,28 @@ export const eveningLook = photo(
 /**
  * A real matched pair: same person, same sweater, same light, same distance.
  * Only the work changed, which is exactly what makes the slider worth pulling.
+ *
+ * The day-makeup "before" is a re-crop (`1-aligned.png`), not the camera
+ * original. She leaned in between the two frames, so her face landed ~6%
+ * larger and ~3% lower in the "after" — enough that dragging the slider slid
+ * her eye and lip line out from under themselves and read as two different
+ * photos. `1-aligned.png` re-frames the "before" onto the "after"'s window, so
+ * the seam lands on the same face. Re-shoot the pair and the crop has to be
+ * recomputed; do not point this back at the uncropped `1.png`.
  */
 
 export const dayMakeupBefore = pairPhoto(
-  '1.png',
+  '1-aligned.png',
   'До: лицо без макияжа и неуложенные волосы',
-  1070,
-  1470,
+  1009,
+  1385,
 );
 
 export const dayMakeupAfter = pairPhoto(
-  '2.png',
+  '2.jpeg',
   'После: дневной макияж — ровный тон, акцент на глаза и губы — и мягкая укладка',
-  252,
-  346,
+  786,
+  1080,
 );
 
 export const curlsBefore = pairPhoto(
