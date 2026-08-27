@@ -87,15 +87,15 @@ export const eveningLook = photo(
 export const dayMakeupBefore = pairPhoto(
   '1.png',
   'До: лицо без макияжа и неуложенные волосы',
-  1122,
-  1402,
+  1070,
+  1470,
 );
 
 export const dayMakeupAfter = pairPhoto(
-  '2.jpg',
+  '2.png',
   'После: дневной макияж — ровный тон, акцент на глаза и губы — и мягкая укладка',
-  800,
-  1000,
+  252,
+  346,
 );
 
 export const curlsBefore = pairPhoto(
