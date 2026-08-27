@@ -1,4 +1,4 @@
-import type { DurationRange, IsoDate, PriceInfo, Rub } from '@/types';
+import type { DurationRange, IsoDate, PriceInfo, Rub, TimeSlot } from '@/types';
 import { plural } from './utils';
 
 const rub = new Intl.NumberFormat('ru-RU', {
@@ -77,6 +77,19 @@ export function addDays(date: Date, days: number): Date {
   return next;
 }
 
+/** `10:30` → `630`. Minutes since midnight, salon-local — the arithmetic unit for schedules. */
+export function parseTimeSlot(slot: TimeSlot): number {
+  const [h, m] = slot.split(':').map(Number);
+  return (h ?? 0) * 60 + (m ?? 0);
+}
+
+/** `630` → `10:30`. */
+export function toTimeSlot(minutes: number): TimeSlot {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+}
+
 /** `12 марта` */
 export function formatDayMonth(iso: IsoDate): string {
   const date = parseIsoDate(iso);
@@ -149,4 +162,34 @@ export function telegramHref(raw: string): string {
 export function whatsappHref(raw: string): string {
   if (/^https?:\/\//i.test(raw)) return raw;
   return `https://wa.me/${raw.replace(/\D/g, '').replace(/^8/, '7')}`;
+}
+
+/**
+ * Map links.
+ *
+ * The salon has no canonical organisation pages on Yandex or 2GIS yet, so a
+ * click on the address falls back to a search for the real street address —
+ * both services resolve it to the right point and hand over to navigation, and
+ * both open their mobile apps when one is installed. A verified organisation
+ * URL always wins over a derived search link.
+ */
+function mapQuery(address: string, city: string): string {
+  return encodeURIComponent(`${city}, ${address}`);
+}
+
+/** `https://yandex.ru/maps/?text=Москва%2C%20…` */
+export function yandexMapsHref(address: string, city: string): string {
+  return `https://yandex.ru/maps/?text=${mapQuery(address, city)}`;
+}
+
+/** 2GIS scopes its search by city slug; an unknown city falls back to global search. */
+const TWO_GIS_CITY_SLUGS: Record<string, string> = {
+  'Москва': 'moscow',
+  'Санкт-Петербург': 'spb',
+};
+
+/** `https://2gis.ru/moscow/search/Москва%2C%20…` */
+export function twoGisHref(address: string, city: string): string {
+  const slug = TWO_GIS_CITY_SLUGS[city];
+  return `https://2gis.ru/${slug ? `${slug}/` : ''}search/${mapQuery(address, city)}`;
 }

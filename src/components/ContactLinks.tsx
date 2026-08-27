@@ -1,8 +1,10 @@
+import { useCallback, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { business, placeholders } from '@/data';
+import { business, mapUrls, placeholders } from '@/data';
 import { formatPhone, phoneHref, telegramHref, whatsappHref } from '@/lib/format';
 import { track } from '@/lib/analytics';
 import type { AnalyticsEvent } from '@/lib/analytics';
+import { useEscape, useOutsideClick } from '@/hooks/useUi';
 import { PlaceholderToken } from './Meta';
 
 /**
@@ -37,11 +39,21 @@ function Channel({
   className,
   external,
 }: ChannelProps) {
-  if (!value || !href) {
+  if (!value) {
     return (
       <div className={cn('flex flex-col gap-1.5', className)}>
         <span className="type-meta text-muted uppercase">{label}</span>
         <PlaceholderToken>{placeholder}</PlaceholderToken>
+      </div>
+    );
+  }
+
+  // A real value with no link yet — the text still belongs on the page.
+  if (!href) {
+    return (
+      <div className={cn('flex flex-col gap-1.5', className)}>
+        <span className="type-meta text-muted uppercase">{label}</span>
+        <span className="type-body">{display ?? value}</span>
       </div>
     );
   }
@@ -107,15 +119,111 @@ export function ContactChannels({
         surface={surface}
         external
       />
-      <Channel
-        label="Адрес"
-        value={business.address}
-        placeholder={placeholders.address}
-        href={business.yandexMapsUrl ?? undefined}
-        event="map_clicked"
-        surface={surface}
-        external
-      />
+      <div className="flex flex-col gap-1.5">
+        <span className="type-meta text-muted uppercase">Адрес</span>
+        <AddressChooser surface={surface} triggerClassName="type-body" />
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Address chooser.
+ *
+ * A click on the address has two right answers in Moscow — Yandex Maps and
+ * 2GIS — and a browser can only follow one link per click, so the address
+ * opens a small menu instead of guessing. The trigger inherits its colour from
+ * the surrounding text so it reads correctly on the dark footer as well; the
+ * panel forces its own palette back, since surfaces that restyle their links
+ * would otherwise bleach it.
+ */
+export function AddressChooser({
+  surface,
+  className,
+  triggerClassName,
+}: {
+  surface: string;
+  className?: string;
+  triggerClassName?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+
+  useEscape(open, close);
+  useOutsideClick(containerRef, open, close);
+
+  const options = [
+    { label: 'Яндекс Карты', href: mapUrls.yandex },
+    { label: '2ГИС', href: mapUrls.twoGis },
+  ].filter((option): option is { label: string; href: string } => Boolean(option.href));
+
+  if (!business.address) {
+    return (
+      <PlaceholderToken className={cn(className, triggerClassName)}>
+        {placeholders.address}
+      </PlaceholderToken>
+    );
+  }
+
+  // No map link at all — the address is still worth showing as text.
+  if (!options.length) {
+    return <span className={cn(className, triggerClassName)}>{business.address}</span>;
+  }
+
+  return (
+    <div ref={containerRef} className={cn('relative w-fit', className)}>
+      <button
+        type="button"
+        onClick={() => setOpen((value) => !value)}
+        aria-expanded={open}
+        aria-haspopup="menu"
+        className={cn(
+          'w-fit cursor-pointer border-b border-current/30 pb-0.5 text-left transition-colors hover:border-current',
+          triggerClassName,
+        )}
+      >
+        {business.address}
+        <span className="sr-only"> — открыть на карте</span>
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          aria-label="Открыть адрес на карте"
+          className="absolute top-full left-0 z-50 mt-2 min-w-[12rem] border border-line bg-paper shadow-[0_12px_32px_-12px_rgba(0,0,0,0.28)]"
+        >
+          {options.map((option, index) => (
+            <a
+              key={option.label}
+              role="menuitem"
+              href={option.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={() => {
+                track('map_clicked', { surface, platform: option.label });
+                close();
+              }}
+              className={cn(
+                'flex items-center justify-between gap-6 px-4 py-3 text-[0.8125rem] text-ink! transition-colors hover:bg-ink/[0.05]',
+                index > 0 && 'border-t border-line!',
+              )}
+            >
+              {option.label}
+              <svg
+                viewBox="0 0 16 16"
+                className="h-3 w-3 shrink-0 text-muted"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                aria-hidden="true"
+              >
+                <path d="M6 3h7v7M13 3L3.5 12.5" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </a>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
@@ -143,8 +251,8 @@ export function OpeningHoursList({ className }: { className?: string }) {
 /** Map platform links — Yandex and 2GIS are how Moscow actually navigates. */
 export function MapLinks({ surface, className }: { surface: string; className?: string }) {
   const links = [
-    { label: 'Яндекс Карты', href: business.yandexMapsUrl, token: placeholders.maps },
-    { label: '2ГИС', href: business.twoGisUrl, token: placeholders.maps },
+    { label: 'Яндекс Карты', href: mapUrls.yandex, token: placeholders.maps },
+    { label: '2ГИС', href: mapUrls.twoGis, token: placeholders.maps },
   ];
 
   return (

@@ -1,4 +1,5 @@
 import type { BusinessInformation } from '@/types';
+import { twoGisHref, yandexMapsHref } from '@/lib/format';
 
 /**
  * CONTENT MODE
@@ -24,7 +25,7 @@ export const business: BusinessInformation = {
   legalCity: 'Москва',
   foundedYear: 1999,
 
-  address: null,
+  address: '1-я Тверская-Ямская улица, 19',
   metro: null,
   phone: '+7 (499) 250-07-00',
   email: null,
@@ -37,12 +38,34 @@ export const business: BusinessInformation = {
   instagramUrl: null,
 
   openingHours: [
-    { days: ['Mo', 'Tu', 'We', 'Th', 'Fr'], label: 'Пн – Пт', opens: null, closes: null },
-    { days: ['Sa', 'Su'], label: 'Сб – Вс', opens: null, closes: null },
+    {
+      days: ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'],
+      label: 'Ежедневно',
+      opens: '10:00',
+      closes: '21:00',
+    },
   ],
 
   coordinates: null,
 };
+
+/**
+ * Where a click on the address goes.
+ *
+ * The salon has not supplied its Yandex Maps or 2GIS organisation pages yet,
+ * so both links are derived from the verified street address as a map search.
+ * That is not an invented fact — it is the address the page already shows,
+ * handed to the two services Moscow actually navigates with. As soon as
+ * `yandexMapsUrl` / `twoGisUrl` are filled in, those win.
+ */
+export const mapUrls = {
+  yandex:
+    business.yandexMapsUrl ??
+    (business.address ? yandexMapsHref(business.address, business.legalCity) : null),
+  twoGis:
+    business.twoGisUrl ??
+    (business.address ? twoGisHref(business.address, business.legalCity) : null),
+} as const;
 
 /** Placeholder tokens, kept in one place so a content editor can grep for them. */
 export const placeholders = {

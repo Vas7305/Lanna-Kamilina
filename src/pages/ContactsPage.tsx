@@ -9,7 +9,7 @@ import { SectionHeader } from '@/components/Typo';
 import { ButtonLink } from '@/components/Button';
 import { Figure } from '@/components/Figure';
 import { PlaceholderToken } from '@/components/Meta';
-import { ContactChannels, MapLinks, OpeningHoursList } from '@/components/ContactLinks';
+import { AddressChooser, ContactChannels, MapLinks, OpeningHoursList } from '@/components/ContactLinks';
 
 /**
  * Contacts.
@@ -64,11 +64,7 @@ export function ContactsPage() {
             <div className="flex flex-col gap-10">
               <div>
                 <p className="type-eyebrow mb-4 text-muted">Адрес</p>
-                {business.address ? (
-                  <p className="type-subtitle">{business.address}</p>
-                ) : (
-                  <PlaceholderToken className="type-subtitle">{placeholders.address}</PlaceholderToken>
-                )}
+                <AddressChooser surface="contacts-address" triggerClassName="type-subtitle" />
                 <p className="type-small mt-2 text-muted">
                   {business.metro ? `м. ${business.metro}` : <PlaceholderToken>{placeholders.metro}</PlaceholderToken>}
                   {' · '}

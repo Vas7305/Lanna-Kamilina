@@ -59,7 +59,7 @@ export function AboutPage() {
 
           <div className="lg:col-span-6">
             <Figure
-              image={{ alt: 'Салон Lanna Kamilina', seed: 'about-salon' }}
+              image={{ src: '/Lanna Kamilina/Places/1.jpeg', alt: 'Салон Lanna Kamilina', seed: 'about-salon' }}
               ratio="landscape"
               priority
               className="grain"

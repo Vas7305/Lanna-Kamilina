@@ -21,7 +21,7 @@ import { services, serviceCategories } from './services';
 import { specialists } from './specialists';
 import { portfolio, portfolioFilters } from './portfolio';
 import { reviews, reputation } from './reviews';
-import { business, placeholders, yearsInBusiness, IS_DEMO_CONTENT, CONTENT_MODE } from './business';
+import { business, mapUrls, placeholders, yearsInBusiness, IS_DEMO_CONTENT, CONTENT_MODE } from './business';
 
 export {
   services,
@@ -32,6 +32,7 @@ export {
   reviews,
   reputation,
   business,
+  mapUrls,
   placeholders,
   yearsInBusiness,
   IS_DEMO_CONTENT,

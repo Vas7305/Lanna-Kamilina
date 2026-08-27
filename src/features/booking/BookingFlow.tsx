@@ -21,7 +21,9 @@ import { Checkbox, Field, TextArea, TextInput } from '@/components/Field';
 import { Figure } from '@/components/Figure';
 import { AvailabilityPicker } from './AvailabilityPicker';
 import { useAvailability } from './useAvailability';
-import { bookingApi } from './api';
+import { bookingApi, SlotUnavailableError } from './api';
+import { availableChannels, deliveryLabels } from './delivery';
+import type { DeliveryChannel } from './delivery';
 
 /**
  * Booking flow.
@@ -38,7 +40,23 @@ import { bookingApi } from './api';
 
 type StepId = 'service' | 'specialist' | 'time' | 'contacts';
 
-const PHONE_PATTERN = /^(\+7|8|7)?[\s(-]*\d{3}[\s)-]*\d{3}[\s-]*\d{2}[\s-]*\d{2}$/;
+/**
+ * Phone validation.
+ *
+ * Russian numbers are the common case and keep their familiar shapes
+ * (`+7 999 123-45-67`, `8 999 1234567`, `999 123-45-67`). A number written
+ * with a country code is accepted as E.164 — a visitor abroad, or a test
+ * number, should not be told their real phone is malformed.
+ */
+function isValidPhone(raw: string): boolean {
+  const value = raw.trim();
+  if (!/^\+?[\d\s()-]+$/.test(value)) return false;
+
+  const digits = value.replace(/\D/g, '');
+  if (/^[78]\d{10}$/.test(digits)) return true;
+  if (value.startsWith('+')) return digits.length >= 8 && digits.length <= 15;
+  return digits.length === 10;
+}
 
 export function BookingFlow() {
   const [params, setParams] = useSearchParams();
@@ -62,7 +80,8 @@ export function BookingFlow() {
   const [comment, setComment] = useState('');
   const [consent, setConsent] = useState(false);
   const [touched, setTouched] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  // Which channel is mid-flight, so only that button says «Отправляем…».
+  const [submitting, setSubmitting] = useState<DeliveryChannel | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const service = serviceId ? getService(serviceId) : undefined;
@@ -72,6 +91,18 @@ export function BookingFlow() {
   );
 
   const availability = useAvailability(serviceId, specialist);
+
+  // A chosen time can stop existing while the form is open — someone books it
+  // in another tab, or the lead-time cutoff rolls past it. Dropping it here is
+  // kinder than letting the visitor send a time the salon cannot give them.
+  useEffect(() => {
+    if (!date || !time) return;
+    const day = availability.days.find((item) => item.date === date);
+    if (day && !day.slots.includes(time)) {
+      setTime(null);
+      setOpenStep('time');
+    }
+  }, [availability.days, date, time]);
 
   // Fires only once a real schedule is being requested. Reporting it on an
   // empty booking page would inflate the step that matters most in the funnel.
@@ -129,16 +160,19 @@ export function BookingFlow() {
 
   const nameError = touched && name.trim().length < 2 ? 'Укажите имя' : undefined;
   const phoneError =
-    touched && !PHONE_PATTERN.test(phone.trim()) ? 'Укажите телефон в формате +7 999 123-45-67' : undefined;
+    touched && !isValidPhone(phone)
+      ? 'Укажите телефон: +7 999 123-45-67 или международный номер с кодом страны'
+      : undefined;
   const consentError = touched && !consent ? 'Без согласия мы не сможем сохранить заявку' : undefined;
   const ready = Boolean(serviceId && date && time);
+  const channels = availableChannels();
 
-  const submit = async () => {
+  const submit = async (channel: DeliveryChannel) => {
     setTouched(true);
     if (!ready || !serviceId || !date || !time) return;
-    if (name.trim().length < 2 || !PHONE_PATTERN.test(phone.trim()) || !consent) return;
+    if (name.trim().length < 2 || !isValidPhone(phone) || !consent) return;
 
-    setSubmitting(true);
+    setSubmitting(channel);
     setSubmitError(null);
 
     const request: BookingRequest = {
@@ -153,21 +187,38 @@ export function BookingFlow() {
     };
 
     try {
-      const confirmation = await bookingApi.submit(request);
+      const confirmation = await bookingApi.submit(request, channel);
       track('booking_completed', {
         service: service?.slug ?? null,
         specialist,
         date,
         time,
+        channel,
         reference: confirmation.reference,
       });
       navigate(routes.bookingDone, { state: confirmation });
-    } catch {
-      track('booking_failed', { service: service?.slug ?? null });
-      setSubmitError(
-        'Не получилось отправить заявку. Попробуйте ещё раз или позвоните в салон — время мы удержим.',
-      );
-      setSubmitting(false);
+    } catch (error) {
+      const taken = error instanceof SlotUnavailableError;
+      track('booking_failed', {
+        service: service?.slug ?? null,
+        channel,
+        reason: taken ? 'slot_taken' : 'delivery',
+      });
+
+      if (taken) {
+        // The slot went while the form was being filled in. Say so plainly and
+        // send the visitor back to a calendar that no longer offers it.
+        setTime(null);
+        setOpenStep('time');
+        setSubmitError(
+          'Это время только что заняли. Выберите, пожалуйста, другое — свободные часы уже обновлены.',
+        );
+      } else {
+        setSubmitError(
+          'Не получилось отправить заявку. Попробуйте ещё раз или позвоните в салон — время мы удержим.',
+        );
+      }
+      setSubmitting(null);
     }
   };
 
@@ -311,13 +362,35 @@ export function BookingFlow() {
               </p>
             )}
 
-            <Button size="lg" onClick={submit} disabled={submitting} className="sm:w-fit">
-              {submitting ? 'Отправляем…' : 'Подтвердить запись'}
-            </Button>
+            {channels.length ? (
+              <>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  {channels.map((channel, index) => (
+                    <Button
+                      key={channel}
+                      size="lg"
+                      variant={index === 0 ? 'primary' : 'secondary'}
+                      onClick={() => submit(channel)}
+                      disabled={submitting !== null}
+                      className="sm:w-fit"
+                    >
+                      {submitting === channel
+                        ? 'Открываем…'
+                        : `Отправить в ${deliveryLabels[channel]}`}
+                    </Button>
+                  ))}
+                </div>
 
-            <p className="type-meta text-muted">
-              Регистрация не нужна. После отправки администратор подтвердит запись.
-            </p>
+                <p className="type-meta text-muted">
+                  Регистрация не нужна. Заявка откроется в выбранном мессенджере — останется
+                  нажать «Отправить». Администратор подтвердит время.
+                </p>
+              </>
+            ) : (
+              <p role="alert" className="type-small border border-line px-4 py-3 text-muted">
+                Онлайн-заявка временно недоступна — позвоните в салон, и мы запишем вас сами.
+              </p>
+            )}
           </div>
         </Step>
       </div>

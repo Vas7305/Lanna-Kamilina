@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { DayAvailability, SpecialistSelection } from '@/types';
 import { toIsoDate } from '@/lib/format';
 import { availabilityApi } from './api';
+import { subscribeToSchedule } from './schedule';
 
 export interface AvailabilityState {
   days: DayAvailability[];
@@ -15,6 +16,9 @@ export interface AvailabilityState {
  * Requests are keyed by service + specialist + window, and a stale response is
  * discarded rather than rendered — switching specialists quickly must not make
  * the calendar flicker between two people's schedules.
+ *
+ * The window also reloads whenever the appointment book changes, including from
+ * another tab: a slot taken in one tab must stop being on offer in the other.
  */
 export function useAvailability(
   serviceId: string | null,
@@ -34,25 +38,35 @@ export function useAvailability(
     }
 
     let active = true;
-    setState((previous) => ({ ...previous, loading: true, error: null }));
 
-    availabilityApi
-      .getAvailability({ serviceId, specialist, from: toIsoDate(new Date()), days })
-      .then((result) => {
-        if (active) setState({ days: result, loading: false, error: null });
-      })
-      .catch(() => {
-        if (active) {
-          setState({
-            days: [],
-            loading: false,
-            error: 'Не удалось загрузить свободное время. Попробуйте обновить страницу.',
-          });
-        }
-      });
+    const load = () => {
+      if (!active) return;
+      // The already-rendered calendar stays put; only the first load shows a
+      // skeleton, so a booking in another tab does not blank the picker.
+      setState((previous) => ({ ...previous, loading: true, error: null }));
+
+      availabilityApi
+        .getAvailability({ serviceId, specialist, from: toIsoDate(new Date()), days })
+        .then((result) => {
+          if (active) setState({ days: result, loading: false, error: null });
+        })
+        .catch(() => {
+          if (active) {
+            setState({
+              days: [],
+              loading: false,
+              error: 'Не удалось загрузить свободное время. Попробуйте обновить страницу.',
+            });
+          }
+        });
+    };
+
+    load();
+    const unsubscribe = subscribeToSchedule(load);
 
     return () => {
       active = false;
+      unsubscribe();
     };
   }, [serviceId, specialist, days]);
 

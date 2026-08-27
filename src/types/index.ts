@@ -226,6 +226,14 @@ export interface BookingConfirmation {
   /** Human-readable code the customer can quote on the phone. */
   reference: string;
   createdAt: string;
+  /** Which messenger the request was handed to, when it was handed to one. */
+  channel?: 'whatsapp' | 'telegram';
+  /**
+   * The master the slot was actually held against. Present even when the
+   * visitor chose «без предпочтения» — an hour has to come out of someone's
+   * day, or the calendar would go on offering time that is already sold.
+   */
+  assignedSpecialist?: string;
 }
 
 export interface Attribution {

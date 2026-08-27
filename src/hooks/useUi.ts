@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import type { RefObject } from 'react';
 
 /** SSR-safe media query subscription. */
 export function useMediaQuery(query: string): boolean {
@@ -76,4 +77,21 @@ export function useEscape(active: boolean, onEscape: () => void): void {
     document.addEventListener('keydown', handler);
     return () => document.removeEventListener('keydown', handler);
   }, [active, handler]);
+}
+
+/** Pointer-outside-to-close, shared by every popover. */
+export function useOutsideClick(
+  ref: RefObject<HTMLElement | null>,
+  active: boolean,
+  onOutside: () => void,
+): void {
+  useEffect(() => {
+    if (!active) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const node = ref.current;
+      if (node && !node.contains(event.target as Node)) onOutside();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [ref, active, onOutside]);
 }

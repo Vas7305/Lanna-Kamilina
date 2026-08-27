@@ -34,7 +34,7 @@ export function HeritageSection() {
 
             <div className="mt-10">
               <Figure
-                image={{ alt: 'Интерьер салона Lanna Kamilina', seed: 'heritage-interior' }}
+                image={{ src: '/Lanna Kamilina/Places/2.jpeg', alt: 'Интерьер салона Lanna Kamilina', seed: 'heritage-interior' }}
                 ratio="landscape"
                 className="grain"
               />

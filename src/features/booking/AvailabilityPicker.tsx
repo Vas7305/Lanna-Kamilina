@@ -75,7 +75,10 @@ export function AvailabilityPicker({
                   'flex h-[4.5rem] w-[3.75rem] flex-col items-center justify-center gap-1 rounded-xs border transition-colors duration-200',
                   active && 'border-ink bg-ink text-paper',
                   !active && !disabled && 'border-line-strong hover:border-ink',
-                  disabled && 'cursor-not-allowed border-line text-line-strong',
+                  // A day can empty out while it is the selected one; it stays
+                  // marked as chosen so the picker does not appear to jump.
+                  disabled && !active && 'cursor-not-allowed border-line text-line-strong',
+                  disabled && active && 'cursor-not-allowed',
                 )}
               >
                 <span
@@ -142,6 +145,11 @@ export function AvailabilityPicker({
             })}
           </div>
         </div>
+      ) : selected ? (
+        <p className="type-small border border-line bg-paper-2/60 px-4 py-3 text-ink-2">
+          На {formatDateLabel(selected.date)} свободного времени не осталось. Выберите другой день
+          — или другого мастера, у него может быть окно.
+        </p>
       ) : (
         <p className="type-small text-muted">Выберите день, чтобы увидеть свободное время.</p>
       )}
