@@ -127,8 +127,16 @@ export const eveningBefore = pairPhoto(
   1453,
 );
 
+/**
+ * `-clean`, not the camera original: the shoot had a decorative four-point
+ * sparkle stamped over her shoulder, which reads as a watermark next to real
+ * work. It is painted out — the sparkle sat on smooth, out-of-focus skin, so
+ * the patch is a harmonic fill from the surrounding gradient plus matched
+ * grain, and nothing outside that ~50px area is touched. Re-export `6.jpeg`
+ * and the retouch has to be redone; do not point this back at it.
+ */
 export const eveningAfter = pairPhoto(
-  '6.jpeg',
+  '6-clean.jpeg',
   'После: вечерний макияж с красной помадой и акцентом на глаза, локоны уложены набок',
   805,
   1080,
