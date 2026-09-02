@@ -14,7 +14,7 @@ export function Breadcrumbs({ items, className }: { items: Crumb[]; className?: 
         {items.map((item, index) => {
           const last = index === items.length - 1;
           return (
-            <li key={`${item.name}-${index}`} className="flex items-center gap-2">
+            <li key={item.path ?? item.name} className="flex items-center gap-2">
               {item.path && !last ? (
                 <Link to={item.path} className="transition-colors hover:text-ink">
                   {item.name}

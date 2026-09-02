@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { commitReached } from './routeTransitionState';
 
 /**
  * Drives the horizontal route transition directly against the browser's View
@@ -19,44 +20,10 @@ import { useLocation } from 'react-router-dom';
  * resolves once the pathname has actually changed. Without that the browser
  * snapshots the "new" state before the new page exists and cross-fades a page
  * into itself.
+ *
+ * The commit signal itself (`awaitCommit`/`commitReached`) lives in
+ * `routeTransitionState.ts` so this file exports only the component below.
  */
-
-let pendingCommit: (() => void) | null = null;
-let safetyTimer: ReturnType<typeof setTimeout> | null = null;
-
-/** How long to wait for a route to commit before giving up on the animation. */
-const COMMIT_TIMEOUT = 1500;
-
-/**
- * Registers the resolver for the navigation now in flight. A transition that
- * never resolves leaves the page frozen under the overlay, so the timer is not
- * optional — a route can fail to commit for reasons that have nothing to do
- * with this (a redirect, a slow chunk, a click on the current page).
- */
-export function awaitCommit(resolve: () => void) {
-  clearPending();
-
-  pendingCommit = resolve;
-  safetyTimer = setTimeout(() => {
-    const commit = pendingCommit;
-    pendingCommit = null;
-    safetyTimer = null;
-    commit?.();
-  }, COMMIT_TIMEOUT);
-}
-
-/** Called once the new route is on screen. */
-export function commitReached() {
-  const commit = pendingCommit;
-  clearPending();
-  commit?.();
-}
-
-function clearPending() {
-  if (safetyTimer !== null) clearTimeout(safetyTimer);
-  safetyTimer = null;
-  pendingCommit = null;
-}
 
 /**
  * Tells the running view transition that the new route is on screen.

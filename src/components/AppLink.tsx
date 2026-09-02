@@ -7,7 +7,7 @@ import {
 } from 'react-router-dom';
 import type { To } from 'react-router-dom';
 import { navPosition } from '@/lib/routes';
-import { awaitCommit } from '@/app/routeTransition';
+import { awaitCommit } from '@/app/routeTransitionState';
 
 /**
  * Internal links that carry the page out sideways.

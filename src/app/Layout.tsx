@@ -52,7 +52,12 @@ export function ScrollManager() {
 
   useEffect(() => {
     if (location.hash) {
-      const target = document.querySelector(location.hash);
+      let target: Element | null = null;
+      try {
+        target = document.querySelector(location.hash);
+      } catch {
+        target = null;
+      }
       if (target) {
         target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         return;
