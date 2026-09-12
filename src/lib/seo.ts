@@ -133,14 +133,16 @@ export function localBusinessSchema(
     };
   }
 
-  const hours = business.openingHours
-    .filter((entry) => entry.opens && entry.closes)
-    .map((entry) => ({
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: entry.days,
-      opens: entry.opens,
-      closes: entry.closes,
-    }));
+  const hours = business.openingHours.flatMap((entry) =>
+    entry.opens && entry.closes
+      ? {
+          '@type': 'OpeningHoursSpecification',
+          dayOfWeek: entry.days,
+          opens: entry.opens,
+          closes: entry.closes,
+        }
+      : [],
+  );
   if (hours.length) node.openingHoursSpecification = hours;
 
   const sameAs = [business.yandexMapsUrl, business.twoGisUrl, business.vkUrl].filter(

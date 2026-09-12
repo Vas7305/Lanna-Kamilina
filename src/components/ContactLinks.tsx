@@ -249,11 +249,14 @@ export function OpeningHoursList({ className }: { className?: string }) {
 }
 
 /** Map platform links — Yandex and 2GIS are how Moscow actually navigates. */
+/** Both entries are constants — neither depends on a prop or on state. */
+const MAP_LINKS = [
+  { label: 'Яндекс Карты', href: mapUrls.yandex, token: placeholders.maps },
+  { label: '2ГИС', href: mapUrls.twoGis, token: placeholders.maps },
+];
+
 export function MapLinks({ surface, className }: { surface: string; className?: string }) {
-  const links = [
-    { label: 'Яндекс Карты', href: mapUrls.yandex, token: placeholders.maps },
-    { label: '2ГИС', href: mapUrls.twoGis, token: placeholders.maps },
-  ];
+  const links = MAP_LINKS;
 
   return (
     <div className={cn('flex flex-wrap items-center gap-3', className)}>

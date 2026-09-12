@@ -103,7 +103,7 @@ export function ReputationStrip({ className }: { className?: string }) {
       <div className="flex flex-col gap-2 bg-paper px-6 py-7">
         <span className="type-eyebrow text-muted">Опыт</span>
         <span className="type-body">
-          {formatYears(yearsInBusiness)} работы в центре Москвы
+          {formatYears(yearsInBusiness())} работы в центре Москвы
         </span>
       </div>
     </div>

@@ -31,11 +31,18 @@ export function useAvailability(
     error: null,
   });
 
+  // With no service chosen there is nothing to show, and that is knowable
+  // during render — going through an effect meant the calendar kept the
+  // previous service's days on screen for a frame after the service was
+  // cleared, which reads as the picker briefly offering the wrong thing.
+  const [lastService, setLastService] = useState(serviceId);
+  if (lastService !== serviceId) {
+    setLastService(serviceId);
+    if (!serviceId) setState({ days: [], loading: false, error: null });
+  }
+
   useEffect(() => {
-    if (!serviceId) {
-      setState({ days: [], loading: false, error: null });
-      return;
-    }
+    if (!serviceId) return;
 
     let active = true;
 

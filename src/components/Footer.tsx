@@ -48,7 +48,7 @@ export function Footer() {
           <div className="col-span-2 md:col-span-1">
             <Logo tone="paper" />
             <p className="type-small mt-4 max-w-xs text-paper/60">
-              Салон красоты в центре Москвы. {formatYears(yearsInBusiness)} работы, команда
+              Салон красоты в центре Москвы. {formatYears(yearsInBusiness())} работы, команда
               мастеров и результат, который можно повторить.
             </p>
           </div>

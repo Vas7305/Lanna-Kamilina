@@ -20,7 +20,7 @@ import { Figure } from '@/components/Figure';
  */
 export function AboutPage() {
   useSeo({
-    title: `О салоне — Lanna Kamilina, ${formatYears(yearsInBusiness)} в центре Москвы`,
+    title: `О салоне — Lanna Kamilina, ${formatYears(yearsInBusiness())} в центре Москвы`,
     description: `Салон красоты Lanna Kamilina работает в центре Москвы с ${business.foundedYear} года. Команда мастеров, подход к работе, стандарты консультации и запись онлайн.`,
     path: routes.about,
     jsonLd: [

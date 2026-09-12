@@ -76,13 +76,19 @@ export function getFeaturedServices(limit = 6): Service[] {
 
 /** Services sharing a tag — powers "похожие услуги" without manual curation. */
 export function getRelatedServices(service: Service, limit = 3): Service[] {
-  return services
-    .filter((candidate) => candidate.id !== service.id)
-    .map((candidate) => ({
-      candidate,
-      score: candidate.tags.filter((tag) => service.tags.includes(tag)).length,
-    }))
-    .filter((entry) => entry.score > 0)
+  // The reference tags are constant across the whole scan, so they are built
+  // into a set once rather than re-scanned for every candidate's every tag.
+  const wanted = new Set(service.tags);
+
+  const scored: Array<{ candidate: Service; score: number }> = [];
+  for (const candidate of services) {
+    if (candidate.id === service.id) continue;
+    let score = 0;
+    for (const tag of candidate.tags) if (wanted.has(tag)) score += 1;
+    if (score > 0) scored.push({ candidate, score });
+  }
+
+  return scored
     .sort((a, b) => b.score - a.score)
     .slice(0, limit)
     .map((entry) => entry.candidate);
@@ -156,28 +162,48 @@ export function getPortfolioForService(serviceId: string, limit = 6): PortfolioI
   if (direct.length >= limit || !service) return direct.slice(0, limit);
 
   // Fall back to tag overlap so a rarely photographed service still shows proof.
+  const already = new Set(direct);
+  const wanted = new Set(service.tags);
   const byTag = portfolio.filter(
-    (item) =>
-      !direct.includes(item) && item.tags.some((tag) => service.tags.includes(tag)),
+    (item) => !already.has(item) && item.tags.some((tag) => wanted.has(tag)),
   );
   return [...direct, ...byTag].slice(0, limit);
 }
 
 export function getPortfolioByTags(tags: string[], limit = 6): PortfolioItem[] {
   if (tags.length === 0) return getFeaturedPortfolio(limit);
-  return portfolio
-    .map((item) => ({ item, score: item.tags.filter((tag) => tags.includes(tag)).length }))
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score || Number(Boolean(b.item.featured)) - Number(Boolean(a.item.featured)))
+
+  const wanted = new Set(tags);
+  const scored: Array<{ item: PortfolioItem; score: number }> = [];
+  for (const item of portfolio) {
+    let score = 0;
+    for (const tag of item.tags) if (wanted.has(tag)) score += 1;
+    if (score > 0) scored.push({ item, score });
+  }
+
+  return scored
+    .sort(
+      (a, b) =>
+        b.score - a.score ||
+        Number(Boolean(b.item.featured)) - Number(Boolean(a.item.featured)),
+    )
     .slice(0, limit)
     .map((entry) => entry.item);
 }
 
 export function getBeforeAfterItems(limit = 6): PortfolioItem[] {
   // Pairs shot on real clients lead; seeded placeholders trail behind them.
-  const items = portfolio.filter((item) => item.beforeAfter);
-  const real = items.filter((item) => item.beforeAfter?.before.src && item.beforeAfter.after.src);
-  const seeded = items.filter((item) => !real.includes(item));
+  // Partitioned in one pass: the previous version walked the list three times
+  // and decided membership of the second group by searching the first.
+  const real: PortfolioItem[] = [];
+  const seeded: PortfolioItem[] = [];
+
+  for (const item of portfolio) {
+    if (!item.beforeAfter) continue;
+    const shot = Boolean(item.beforeAfter.before.src && item.beforeAfter.after.src);
+    (shot ? real : seeded).push(item);
+  }
+
   return [...real, ...seeded].slice(0, limit);
 }
 

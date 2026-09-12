@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { NavLink } from '@/components/AppLink';
 import { cn } from '@/lib/utils';
@@ -26,9 +26,15 @@ export function Header({ overHero = false }: { overHero?: boolean }) {
   useScrollLock(menuOpen);
   useEscape(menuOpen, () => setMenuOpen(false));
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [location.pathname, location.search]);
+  // The menu closes when the visitor navigates. Adjusting during render rather
+  // than from an effect: an effect runs after the new page has painted, so the
+  // menu stayed open over it for a frame — most visible on a slow phone, which
+  // is the only place this menu exists.
+  const [lastLocation, setLastLocation] = useState(location.key);
+  if (lastLocation !== location.key) {
+    setLastLocation(location.key);
+    if (menuOpen) setMenuOpen(false);
+  }
 
   const solid = scrolled || !overHero || menuOpen;
 

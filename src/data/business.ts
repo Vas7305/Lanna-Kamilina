@@ -79,4 +79,14 @@ export const placeholders = {
   maps: '[ССЫЛКА НА КАРТЫ]',
 } as const;
 
-export const yearsInBusiness = new Date().getFullYear() - business.foundedYear;
+/**
+ * Years in business, computed when asked.
+ *
+ * Was a module-scope `new Date()`, which fixes the value at the moment the
+ * bundle is evaluated: a tab left open across New Year's Eve keeps last year's
+ * number, and anything prerendering this module bakes in the build date. A
+ * function reads the clock at the point the answer is used.
+ */
+export function yearsInBusiness(): number {
+  return new Date().getFullYear() - business.foundedYear;
+}
